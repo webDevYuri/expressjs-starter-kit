@@ -35,7 +35,7 @@ A production-ready Express 5 starter template with a scalable layered architectu
 ### Installation
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/webDevYuri/expressjs-starter-kit.git
 cd express-starter-kit
 npm install
 ```
