@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Models — Database schemas and entity definitions
+// ---------------------------------------------------------------------------
+// Define data shape, validation rules, and relationships for each entity.
+// Adapt to your ORM/ODM: Mongoose, Sequelize, Prisma, or Knex.
+//
+// Create one file per entity: user.model.js, token.model.js,
+// post.model.js, file.model.js, etc.
+// ---------------------------------------------------------------------------
+
 /**
  * MODELS — Database schemas and data shape definitions.
  *

@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Server Entry Point
+// ---------------------------------------------------------------------------
+// Bootstraps the Express app: loads environment variables, imports the
+// configured app from app.js, and starts the HTTP server.
+//
+// Keep this file thin. All Express configuration belongs in app.js.
+// You can add graceful shutdown, cluster mode, or HTTPS setup here later.
+// ---------------------------------------------------------------------------
+
 require('dotenv').config();
 
 const app = require('./app');

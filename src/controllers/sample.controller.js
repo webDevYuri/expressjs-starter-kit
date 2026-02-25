@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Controllers — HTTP request/response handlers
+// ---------------------------------------------------------------------------
+// Extract input from req, call services, return formatted responses.
+// Controllers should NOT contain business logic — delegate to services.
+//
+// Create one file per resource: auth.controller.js, user.controller.js,
+// post.controller.js, upload.controller.js, etc.
+// ---------------------------------------------------------------------------
+
 /**
  * CONTROLLERS — HTTP request/response handlers.
  *

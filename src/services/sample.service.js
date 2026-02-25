@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Services — Core business logic layer
+// ---------------------------------------------------------------------------
+// Receive plain data, enforce business rules, query the database via models,
+// and return plain data. Services should NOT access req or res.
+//
+// Create one file per domain: auth.service.js, user.service.js,
+// mail.service.js, token.service.js, upload.service.js, etc.
+// ---------------------------------------------------------------------------
+
 /**
  * SERVICES — Core business logic layer.
  *

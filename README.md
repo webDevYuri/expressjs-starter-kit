@@ -12,6 +12,9 @@ A production-ready Express 5 starter template with a scalable layered architectu
 - Environment-based configuration via dotenv
 - Global error handler with dev/prod output
 - Health check endpoint out of the box
+- Core config layer with barrel exports (app, db, auth, cors, rate-limit, upload, mail)
+- Core constants layer with barrel exports (HTTP status, regex, messages, roles, pagination, upload)
+- Built-in middlewares for auth (JWT), role-based access, request validation (Joi), rate limiting, and file uploads (Multer)
 - Scalable folder structure for enterprise growth
 
 ## Tech Stack
@@ -23,6 +26,10 @@ A production-ready Express 5 starter template with a scalable layered architectu
 | CORS | 2 | Cross-origin resource sharing |
 | Morgan | 1 | HTTP request logger |
 | dotenv | 16 | Environment variable management |
+| jsonwebtoken | 9 | JWT authentication |
+| Joi | 17 | Request validation schemas |
+| express-rate-limit | 7 | API rate limiting |
+| Multer | 1 | File upload handling |
 | Nodemon | 3 | Development auto-restart |
 
 ## Getting Started
@@ -36,7 +43,7 @@ A production-ready Express 5 starter template with a scalable layered architectu
 
 ```bash
 git clone https://github.com/webDevYuri/expressjs-starter-kit.git
-cd express-starter-kit
+cd expressjs-starter-kit
 npm install
 ```
 
@@ -98,27 +105,38 @@ Client Request
 
 ### config/
 
-Centralized settings read from environment variables. One file per domain.
+Centralized settings read from environment variables. One file per domain. Import from the barrel file:
 
-Suggested files:
+```js
+const { db, auth, cors } = require('../config');
+```
+
+Included files:
 - `app.config.js` — PORT, NODE_ENV, API prefix
 - `db.config.js` — Database URI, pool size, connection options
 - `auth.config.js` — JWT secret, token expiry, bcrypt salt rounds
-- `cors.config.js` — Allowed origins, methods, headers
-- `rate-limit.config.js` — Window duration, max requests
-- `mail.config.js` — SMTP host, port, credentials
-- `upload.config.js` — Max file size, allowed MIME types, storage path
+- `cors.config.js` — Allowed origins, methods, headers, credentials
+- `rate-limit.config.js` — Window duration, max requests per window
+- `upload.config.js` — Max file size, storage path, allowed types (reads from UPLOAD constant)
+- `mail.config.js` — SMTP host, port, credentials, sender name and address
+- `index.js` — Barrel exports for all configs
 
 ### constants/
 
-Static immutable values. Use `Object.freeze()` and `UPPER_SNAKE_CASE`.
+Static immutable values. Use `Object.freeze()` and `UPPER_SNAKE_CASE`. Import from the barrel file:
 
-Suggested files:
-- `http-status.constant.js` — HTTP status codes (200, 201, 400, 401, 404, 500)
-- `roles.constant.js` — User roles and role-to-permission mapping
-- `regex.constant.js` — Validation patterns (email, phone, password, slug)
-- `messages.constant.js` — Reusable response and error message strings
-- `pagination.constant.js` — Default page, limit, max limit, sort orders
+```js
+const { HTTP_STATUS, MESSAGES, ROLES } = require('../constants');
+```
+
+Included files:
+- `http-status.constant.js` — `HTTP_STATUS` — Status codes grouped by success, client error, and server error
+- `regex.constant.js` — `REGEX` — Validation patterns for email, password, username, phone, slug, OTP, Mongo ID, UUID, URL
+- `messages.constant.js` — `MESSAGES` — Response strings grouped by AUTH, CRUD, VALIDATION, UPLOAD, RATE_LIMIT, SERVER
+- `roles.constant.js` — `ROLES`, `PERMISSIONS`, `ROLE_PERMISSIONS` — Role definitions and role-to-permission mapping
+- `pagination.constant.js` — `PAGINATION`, `SORT_ORDER` — Default page, limit, max limit, sort directions
+- `upload.constant.js` — `UPLOAD` — Max file size, allowed MIME types and extensions, storage path
+- `index.js` — Barrel exports for all constants
 
 ### controllers/
 
@@ -132,12 +150,12 @@ Suggested files:
 
 Functions that intercept requests before reaching controllers. The 404 handler and global error handler are already wired in `app.js`.
 
-Suggested files:
-- `auth.middleware.js` — Verify JWT token, attach user to req
-- `role.middleware.js` — Check user role/permissions
-- `validate.middleware.js` — Run validation schemas and return errors
-- `rate-limit.middleware.js` — Throttle requests per IP or user
-- `upload.middleware.js` — Handle file uploads via Multer
+Included files:
+- `auth.middleware.js` — `authenticate` — Verify JWT token, attach decoded user to `req.user`
+- `role.middleware.js` — `authorize(...permissions)` — Check user role against `ROLE_PERMISSIONS` mapping
+- `validate.middleware.js` — `validate(schema, source)` — Run Joi schema against `req.body`, `req.query`, or `req.params`
+- `rate-limit.middleware.js` — `apiLimiter`, `authLimiter` — General and strict (auth) rate limiters
+- `upload.middleware.js` — `uploadImage(field)`, `uploadDocument(field)` — Multer-based file upload with type/size checks
 
 ### models/
 
@@ -171,21 +189,20 @@ Suggested files:
 
 Pure helper functions with no side effects. Stateless and framework-agnostic.
 
-Suggested files:
-- `app-error.util.js` — Custom AppError class with statusCode
-- `async-handler.util.js` — Wraps async handlers to catch errors
-- `logger.util.js` — Winston or Pino logger setup
-- `response.util.js` — Standard success/error response formatters
-- `pagination.util.js` — Build pagination metadata from query params
+Included files:
+- `app-error.util.js` — `AppError` — Custom Error class with `statusCode` and `isOperational` flag
+- `async-handler.util.js` — `asyncHandler(fn)` — Wraps async controllers so errors forward to `next()`
+- `response.util.js` — `success(res, opts)`, `error(res, opts)` — Standardized JSON response formatters with optional `meta` and `errors`
+- `pagination.util.js` — `parsePagination(query)`, `buildPaginationMeta(total, page, limit)` — Parse query params and build pagination metadata
 
 ### validators/
 
-Request validation schemas consumed by a validate middleware.
+Joi validation schemas consumed by the `validate` middleware. Uses `REGEX` constants for pattern matching.
 
-Suggested files:
-- `auth.validator.js` — registerSchema, loginSchema
-- `user.validator.js` — createUserSchema, updateUserSchema
-- `common.validator.js` — mongoIdSchema, paginationSchema (shared)
+Included files:
+- `auth.validator.js` — `registerSchema`, `loginSchema` — Name, email, password with strength check, confirm password match
+- `user.validator.js` — `createUserSchema`, `updateUserSchema` — User CRUD validation with role enum and `.min(1)` on update
+- `common.validator.js` — `mongoIdSchema`, `paginationSchema` — Reusable ID param and pagination query validation
 
 ## Template Cleanup
 

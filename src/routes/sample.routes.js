@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Routes — Endpoint definitions wired to controllers
+// ---------------------------------------------------------------------------
+// Define HTTP methods, apply inline middleware (auth, validation, rate-limit),
+// and point to controller functions. Register each file in routes/index.js.
+//
+// Create one file per resource: auth.routes.js, user.routes.js,
+// post.routes.js, upload.routes.js, etc.
+// ---------------------------------------------------------------------------
+
 /**
  * ROUTES — Endpoint definitions that wire HTTP methods to controllers.
  *

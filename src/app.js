@@ -1,3 +1,13 @@
+// ---------------------------------------------------------------------------
+// Express Application Factory
+// ---------------------------------------------------------------------------
+// Creates and configures the Express 5 app instance: registers global
+// middlewares, mounts API routes, and wires the 404 and error handlers.
+//
+// You can add cookie-parser, compression, request-id generation,
+// or additional security middlewares (hpp, mongo-sanitize) here later.
+// ---------------------------------------------------------------------------
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
